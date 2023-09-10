@@ -15,6 +15,11 @@ int ship_y = 145;
 int changepo_ship_x;
 int ship_height = 10;
 int ship_width = 10;
+int hp = 5;
+boolean delete_hp = false;
+boolean limit_delete_hp = false;
+int hitbox[4];// เก็บ hitbox
+int count_item = 0;
 
 
 boolean state_bullet = true;
@@ -35,8 +40,12 @@ boolean state_bullet_enemy = true;
 int shot_enemy;
 int bullet_enemy_x;
 int bullet_enemy_y;
+int speed_bullet_enemy = 4;
 int pre_bullet_enemy;
-
+int hitbox_enemy[4];// เก็บ hitbox ศัตรู
+int hp_enemy = 7;
+boolean delete_hp_enemy = false;
+boolean limit_delete_hp_enemy = false;
 
 int button_c;
 TEE_ST7735 lcd(9, 10, 11, 12, 13); //Arduino  csk,sda,A0,rst,cs
@@ -44,28 +53,68 @@ void setup() {
     lcd.init(lcd.VERTICAL);
     lcd.fillScreen(BLACK);
     Serial.begin(9600);
-    Serial.println(lcd.width);
-    Serial.println(lcd.height);
+    Serial.print("Enemy HP: ");
+    Serial.println(hp_enemy);
+    Serial.print("Your HP: ");
+    Serial.println(hp);
     
 }
 
 void loop() {
   Game_lunch();
 
-
+//  lcd.drawCircle(52,74,7,WHITE);
+//lcd.drawChar(50, 70, 'H', YELLOW, 1);
 }
 
 void Game_lunch(){
-  
+
   changepo_ship_x = analogRead(PIN_ANALOG_X);
   button_c = digitalRead(4);
-  
-  lcd.fillRect(ship_x, ship_y, ship_width, ship_height, YELLOW);//ship
 
-
-  if(state_enemy == true){
-  lcd.fillRect(ship_enemy_x, ship_enemy_y, ship_width, ship_height,BLUE);//ememy ship
+  if(hp <= 2){
+    lcd.fillRect(ship_x, ship_y, ship_width, ship_height, CYAN);//ship
+  }else{
+    lcd.fillRect(ship_x, ship_y, ship_width, ship_height, YELLOW);//ship
   }
+  
+  hitbox[0] = ship_x;
+  hitbox[1] = ship_x + ship_width;
+  hitbox[2] = ship_y;
+  if(delete_hp == true){
+    hp -= 1;
+    delete_hp = false;
+//    limit_delete_hp = true;
+    Serial.print("Enemy HP: ");
+    Serial.println(hp_enemy);
+    Serial.print("Your HP: ");
+    Serial.println(hp);
+  }
+
+   ///ศัตรู///
+  if(state_enemy == true){
+  if(delete_hp_enemy == true && limit_delete_hp_enemy == false){
+    hp_enemy -= 1;
+    delete_hp_enemy = false;
+    limit_delete_hp_enemy = true;
+    Serial.print("Enemy HP: ");
+    Serial.println(hp_enemy);
+    Serial.print("Your HP: ");
+    Serial.println(hp);
+  }
+  if(hp_enemy <= 3){
+    lcd.fillRect(ship_enemy_x, ship_enemy_y, ship_width, ship_height,RED);//ememy ship
+    speed_bullet_enemy = 5;
+  }
+  else{
+    lcd.fillRect(ship_enemy_x, ship_enemy_y, ship_width, ship_height,BLUE);//ememy ship
+  }
+  hitbox_enemy[0] = ship_enemy_x;
+  hitbox_enemy[1] = ship_enemy_x + ship_width;
+  hitbox_enemy[2] = ship_enemy_y + ship_height;
+//  Serial.println(hp_enemy);
+  }
+  
   random_enemy();//เคลื่อนที่ยานศัตรู
   if(random_direction_enemy == 0 && pre_chip_enemy_x >= 2){
     pre_chip_enemy_x = ship_enemy_x;
@@ -89,16 +138,24 @@ void Game_lunch(){
    if(state_bullet_enemy == false){
     lcd.fillCircle(bullet_enemy_x,bullet_enemy_y,bullet_radius,RED);//bullet enemy
     pre_bullet_enemy = bullet_enemy_y-2-bullet_radius;
-    bullet_enemy_y += 4;
-    lcd.fillCircle(bullet_enemy_x,pre_bullet_enemy,bullet_radius,BLACK);//delete bullet
-    pre_bullet_enemy += 1;
+    bullet_enemy_y += speed_bullet_enemy;
+    lcd.fillCircle(bullet_enemy_x,pre_bullet_enemy,bullet_radius+1,BLACK);//delete bullet
+    pre_bullet_enemy += 2;
     if(bullet_enemy_y >= 160){
         lcd.fillCircle(bullet_enemy_x,pre_bullet_enemy+3,bullet_radius+1,BLACK);//delete bullet
-      state_bullet_enemy = true;     
+      state_bullet_enemy = true;  
+//      limit_delete_hp = false;   
       }
+    if(delete_hp == false && ((bullet_enemy_x-bullet_radius >= hitbox[0] && bullet_enemy_x-bullet_radius <= hitbox[1]) || (bullet_enemy_x+bullet_radius <= hitbox[1] && bullet_enemy_x+bullet_radius >= hitbox[0])) && bullet_enemy_y +bullet_radius >= hitbox[2]){
+//           Serial.println("Collision");
+           delete_hp = true;
+
+           lcd.fillCircle(bullet_enemy_x,pre_bullet_enemy+3,bullet_radius+1,BLACK);//delete bullet
+           state_bullet_enemy = true; 
+     } 
    }
     
-    
+   ///จบศัตรู///
 
     
   if(changepo_ship_x <= 10 && ship_x>0){
@@ -109,7 +166,7 @@ void Game_lunch(){
       ship_x -= 2;
       lcd.fillRect(pre_chip_x+ship_width, ship_y, ship_width, ship_height, BLACK);//delete ship
       pre_chip_x -= 1;
-      Serial.println(changepo_ship_x);
+//      Serial.println(changepo_ship_x);
     }
    if(changepo_ship_x >= 1000 && ship_x<118){
       pre_chip_x = ship_x;
@@ -119,7 +176,7 @@ void Game_lunch(){
       ship_x += 2;
       lcd.fillRect(pre_chip_x-ship_width, ship_y, ship_width, ship_height, BLACK);//delete ship
       pre_chip_x += 1;
-      Serial.println(changepo_ship_x);
+//      Serial.println(changepo_ship_x);
     }
     if(button_c == 0 && state_bullet != false){
       state_bullet = false;
@@ -135,7 +192,15 @@ void Game_lunch(){
       pre_bullet_y -= 1;
       if(bullet_y <= 2){
         lcd.fillCircle(bullet_x,pre_bullet_y-3,bullet_radius+1,BLACK);//delete bullet
-      state_bullet = true;     
+        state_bullet = true; 
+        limit_delete_hp_enemy = false; 
+      }
+      if(limit_delete_hp_enemy == false && delete_hp_enemy == false && state_bullet == false && ((bullet_x-bullet_radius >= hitbox_enemy[0] && bullet_x-bullet_radius <= hitbox_enemy[1]) || (bullet_x+bullet_radius <= hitbox_enemy[1] && bullet_x+bullet_radius >= hitbox_enemy[0])) && bullet_y-bullet_radius <= hitbox_enemy[2]){
+//           Serial.println("Collision");
+           delete_hp_enemy = true;
+
+           lcd.fillCircle(bullet_x,pre_bullet_y-3,bullet_radius+1,BLACK);//delete bullet
+           state_bullet = true; 
       }
      }
 
@@ -153,10 +218,12 @@ void random_enemy(){
         }
         count_move += 1;
     }
-    if(count_move == 10){count_move = 0;}
-      Serial.print(random_direction_enemy);
-      Serial.print(" ");
-      Serial.println(count_move);
+    if(count_move == 10){
+      count_move = 0;
+      }
+//      Serial.print(random_direction_enemy);
+//      Serial.print(" ");
+//      Serial.println(count_move);
   }
 int random_shot_enemy(){
     return random(0,2);
