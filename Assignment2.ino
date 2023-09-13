@@ -90,6 +90,7 @@ void Game_lunch(){
   hitbox[2] = ship_y;
   if(delete_hp == true){
     hp -= 1;
+    lcd.fillRect(ship_x, ship_y, ship_width, ship_height, WHITE);
     delete_hp = false;
 //    limit_delete_hp = true;
     Serial.print("Enemy HP: ");
@@ -102,6 +103,7 @@ void Game_lunch(){
   if(state_enemy == true){
   if(delete_hp_enemy == true){
     hp_enemy -= 1;
+    lcd.fillRect(ship_enemy_x, ship_enemy_y, ship_width, ship_height,WHITE);
     delete_hp_enemy = false;
 //    limit_delete_hp_enemy = true;
     Serial.print("Enemy HP: ");
@@ -130,13 +132,13 @@ void Game_lunch(){
     pre_chip_enemy_x = ship_enemy_x;
     ship_enemy_x -= speed_chip_enemy;
     lcd.fillRect(pre_chip_enemy_x+ship_width, ship_enemy_y, ship_width, ship_height, BLACK);//delete ship
-    pre_chip_enemy_x -= 2;
+    pre_chip_enemy_x -= 1;
     }
    if(random_direction_enemy == 1 && pre_chip_enemy_x <= 118){
      pre_chip_enemy_x = ship_enemy_x;
     ship_enemy_x += speed_chip_enemy;
     lcd.fillRect(pre_chip_enemy_x-ship_width, ship_enemy_y, ship_width, ship_height, BLACK);//delete ship
-    pre_chip_enemy_x += 2;
+    pre_chip_enemy_x += 1;
     }
     
    shot_enemy = random_shot_enemy();//ศัตรูยิงกระสุน
@@ -224,23 +226,23 @@ void Game_lunch(){
    ///จบศัตรู///
 
     
-  if(changepo_ship_x <= 10 && ship_x>0){
+  if(changepo_ship_x <= 10 && ship_x>2){
       pre_chip_x = ship_x;
       if(state_bullet == false){ //ปรับความเร็วยาน  เวลายิงกระสุนแล้วเคลื่อนช้า
         ship_x -= 1;
         }
       ship_x -= speed_chip;
-      lcd.fillRect(pre_chip_x+ship_width, ship_y, ship_width, ship_height, BLACK);//delete ship
+      lcd.fillRect(pre_chip_x+(ship_width/2), ship_y, ship_width, ship_height, BLACK);//delete ship
       pre_chip_x -= 1;
 //      Serial.println(changepo_ship_x);
     }
-   if(changepo_ship_x >= 1000 && ship_x<118){
+   if(changepo_ship_x >= 1000 && ship_x<116){
       pre_chip_x = ship_x;
       if(state_bullet == false){//ปรับความเร็วยาน  เวลายิงกระสุนแล้วเคลื่อนช้า
         ship_x += 1;
         }
       ship_x += speed_chip;
-      lcd.fillRect(pre_chip_x-ship_width, ship_y, ship_width, ship_height, BLACK);//delete ship
+      lcd.fillRect(pre_chip_x-(ship_width/2), ship_y, ship_width, ship_height, BLACK);//delete ship
       pre_chip_x += 1;
 //      Serial.println(changepo_ship_x);
     }
@@ -259,12 +261,12 @@ void Game_lunch(){
       if(bullet_y <= 2){
         lcd.fillCircle(bullet_x,pre_bullet_y-3,bullet_radius+1,BLACK);//delete bullet
         state_bullet = true; 
-        limit_delete_hp_enemy = false; 
+//        limit_delete_hp_enemy = false; 
       }
         hitbox_enemy[0] = ship_enemy_x;
         hitbox_enemy[1] = ship_enemy_x + ship_width;
         hitbox_enemy[2] = ship_enemy_y + ship_height;
-      if(delete_hp_enemy == false && state_bullet == false && ((bullet_x-bullet_radius >= hitbox_enemy[0] && bullet_x-bullet_radius <= hitbox_enemy[1]) || (bullet_x+bullet_radius <= hitbox_enemy[1] && bullet_x+bullet_radius >= hitbox_enemy[0])) && bullet_y-bullet_radius <= hitbox_enemy[2]){
+      if(state_bullet == false && ((bullet_x-bullet_radius >= hitbox_enemy[0] && bullet_x-bullet_radius <= hitbox_enemy[1]) || (bullet_x+bullet_radius <= hitbox_enemy[1] && bullet_x+bullet_radius >= hitbox_enemy[0])) && bullet_y-bullet_radius <= hitbox_enemy[2]){
 //           Serial.println("Collision");
            delete_hp_enemy = true;
 
@@ -303,7 +305,7 @@ void bullet_enemy_coliision_ship(int x,int y,int pre_y,int index){
   hitbox[1] = ship_x + ship_width;
   hitbox[2] = ship_y;
       if(delete_hp == false && ((x-bullet_radius >= hitbox[0] && y-bullet_radius <= hitbox[1]) || (x+bullet_radius <= hitbox[1] && x+bullet_radius >= hitbox[0])) && y +bullet_radius >= hitbox[2]){
-            //Serial.println("Collision");
+//            Serial.println("Collision");
            delete_hp = true;
 
            lcd.fillCircle(x,pre_y+3,bullet_radius+1,BLACK);//delete bullet
@@ -314,9 +316,11 @@ void bullet_enemy_coliision_ship(int x,int y,int pre_y,int index){
            else{
            if(index == 0){
             multl_bullet_x[0] = 0;
+            multl_bullet_y[0] = 0;
            }
            else if(index == 1){
             multl_bullet_x[1] = 0;
+            multl_bullet_y[1] = 0;
            }
            }
      }
