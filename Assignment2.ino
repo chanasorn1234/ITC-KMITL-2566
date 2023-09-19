@@ -9,6 +9,11 @@ const byte PIN_E = 6;
 const byte PIN_F = 7;
 const byte PIN_K = 8;
 
+bool lunch_game = false;
+bool pause_game = false;
+bool over_game = false;
+int previos_pause = 1;
+
 int ship_x = 57;
 int pre_chip_x;
 int ship_y = 145;
@@ -19,8 +24,11 @@ int hp = 5;
 boolean delete_hp = false;
 boolean limit_delete_hp = false;
 int hitbox[4];// เก็บ hitbox
-int count_item = 0;
 
+int count_item = 0;
+int item_position_x;
+boolean have_item = false;
+int try_keep_item = 0;
 
 boolean state_bullet = true;
 int bullet_x;
@@ -55,32 +63,97 @@ int speed_chip_enemy = 2;
 
 
 int button_c;
+int button_e;
 TEE_ST7735 lcd(9, 10, 11, 12, 13); //Arduino  csk,sda,A0,rst,cs
 void setup() {
     lcd.init(lcd.VERTICAL);
     lcd.fillScreen(BLACK);
+    for (int x = 0; x < lcd.width; x += 6)
+    {
+        lcd.drawLine(0, 0, x, lcd.height - 1, RED);
+    }
+    //lcd.fillScreen(BLUE);
+    for (int x = lcd.width; x > 0; x -= 6)
+    {
+        lcd.drawLine(lcd.width-1, 0, x, lcd.height - 1, RED);
+    }
+    lcd.fillScreen(BLACK);
+
     Serial.begin(9600);
     Serial.print("Enemy HP: ");
     Serial.println(hp_enemy);
     Serial.print("Your HP: ");
     Serial.println(hp);
+
     
 }
 
 void loop() {
-  Game_lunch();
-
+  if(over_game == false){
+  if(lunch_game == true && pause_game == false){
+    Game_lunch();
+  }
+  else if(lunch_game == false && pause_game == false){
+    Menu_game();
+  }
+  else if(lunch_game == true && pause_game == true){
+    Pause_game();
+  }
+  }else{
+    Over_game();
+  }
 //  lcd.drawCircle(52,74,7,WHITE);
 //lcd.drawChar(50, 70, 'H', YELLOW, 1);
 }
 
+void Over_game(){
+  lcd.drawString(38, 40, "GAME OVER", GREEN, 1); 
+  lcd.drawString(33, 70, "Press START", GREEN, 1); 
+  lcd.drawString(30, 100,"for New Game", GREEN, 1);
+  button_e = digitalRead(6);
+  if(button_e == 0){
+    asm volatile("jmp 0");
+  }
+}
+
+
+void Pause_game(){
+//  lcd.fillScreen(BLACK);
+  lcd.drawString(33, 70, "Pause GAME", GREEN, 1); 
+  button_e = digitalRead(6);
+  if(button_e == 0){
+    pause_game = false;
+    previos_pause = 1;
+    lcd.fillScreen(BLACK);
+  }
+}
+
+
+void Menu_game(){
+  lcd.drawString(27, 40, "Space Shooter", GREEN, 1); 
+  lcd.drawString(33, 70, "Press START", GREEN, 1); 
+  lcd.drawString(30, 100,"for New Game", GREEN, 1);
+
+  button_e = digitalRead(6);
+  if(button_e == 0){
+    lunch_game = true;
+    lcd.fillScreen(BLACK);
+  }
+}
 void Game_lunch(){
 
   changepo_ship_x = analogRead(PIN_ANALOG_X);
   button_c = digitalRead(4);
+  button_e = digitalRead(6);
+  if(button_e == 0 && (previos_pause != button_e)){
+    pause_game = true; 
+    lcd.fillScreen(BLACK);
+  
+  }
 
   if(hp <= 2){
     lcd.fillRect(ship_x, ship_y, ship_width, ship_height, CYAN);//ship
+    random_item();
   }else{
     lcd.fillRect(ship_x, ship_y, ship_width, ship_height, YELLOW);//ship
   }
@@ -126,6 +199,7 @@ void Game_lunch(){
   hitbox_enemy[2] = ship_enemy_y + ship_height;
 //  Serial.println(hp_enemy);
   }
+
   
   random_enemy();//เคลื่อนที่ยานศัตรู
   if(random_direction_enemy == 0 && pre_chip_enemy_x >= 2){
@@ -260,7 +334,11 @@ void Game_lunch(){
       pre_bullet_y -= 1;
       if(bullet_y <= 2){
         lcd.fillCircle(bullet_x,pre_bullet_y-3,bullet_radius+1,BLACK);//delete bullet
-        state_bullet = true; 
+        state_bullet = true;
+         
+        if(have_item == true){
+            try_keep_item += 1;
+           }
 //        limit_delete_hp_enemy = false; 
       }
         hitbox_enemy[0] = ship_enemy_x;
@@ -272,10 +350,19 @@ void Game_lunch(){
 
            lcd.fillCircle(bullet_x,pre_bullet_y-3,bullet_radius+1,BLACK);//delete bullet
            state_bullet = true; 
+
+           if(have_item == true){
+            try_keep_item += 1;
+           }
       }
      }
 
-  
+  previos_pause = button_e;
+  if(hp <= 0 || hp_enemy <= 0){
+    over_game = true;
+    lcd.fillScreen(BLACK);
+    
+  }
 }
 
 void random_enemy(){
@@ -324,6 +411,44 @@ void bullet_enemy_coliision_ship(int x,int y,int pre_y,int index){
            }
            }
      }
+     if(have_item == true && ((x-bullet_radius >= item_position_x && x-bullet_radius <= item_position_x + 10)||(x+bullet_radius <= item_position_x + 10 && x+bullet_radius >= item_position_x)) && y-bullet_radius <= 77 && y-bullet_radius >= 69){
+        lcd.fillCircle(item_position_x+3,73,4,BLACK);
+        have_item = false;
+        try_keep_item = 0;
+    }
+ }
+
+ void random_item(){
+  int ran_or_not = random(0,10);
+  if(ran_or_not == 5 && have_item != true){
+    item_position_x = random(1,120);
+    lcd.drawString(item_position_x, 70, "L", RED, 1);
+    have_item = true;
+  }
+
+  if(have_item == true && ((bullet_enemy_x-bullet_radius >= item_position_x && bullet_enemy_x-bullet_radius <= item_position_x + 10)||(bullet_enemy_x+bullet_radius <= item_position_x + 10 && bullet_enemy_x+bullet_radius >= item_position_x)) && bullet_enemy_y-bullet_radius <= 77 && bullet_enemy_y-bullet_radius >= 69){
+    lcd.fillCircle(item_position_x+3,73,4,BLACK);
+    have_item = false;
+    try_keep_item = 0;
+  }
+
+  if(have_item == true && ((bullet_x-bullet_radius >= item_position_x && bullet_x-bullet_radius <= item_position_x + 10)||(bullet_x+bullet_radius <= item_position_x + 10 && bullet_x+bullet_radius >= item_position_x)) && bullet_y-bullet_radius <= 77 && bullet_y-bullet_radius >= 69){
+    lcd.fillCircle(item_position_x+3,73,4,BLACK);
+    have_item = false;
+    try_keep_item = 0;
+    hp += 1;
+    Serial.print("Enemy HP: ");
+    Serial.println(hp_enemy);
+    Serial.print("Your HP: ");
+    Serial.println(hp);
+  }
+
+  
+  if(have_item == true && try_keep_item == 2){
+    lcd.fillCircle(item_position_x+3,73,4,BLACK);
+    have_item = false;
+    try_keep_item = 0;
+  }
  }
 
 
