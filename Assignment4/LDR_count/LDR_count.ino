@@ -7,25 +7,25 @@ void setup() {
 }
 
 void loop() {
+
   int inp = analogRead(A5);
   Serial.print(inp);
   Serial.print(" ");
   Serial.println(count);
   
   int start_time = millis();
-  if(inp < 400 && toggle_count == true){
+  if(inp < 300 && toggle_count == true){//350
     count += 1;
     toggle_count = false;
-    while(millis() - start_time < 3000){
-      inp = analogRead(A5);
-      if(inp > 500){
-        toggle_count = true;
-        break;
-      }
-    }
-  
+//    while(millis() - start_time < 3000){
+//      inp = analogRead(A5);
+//      if(inp > 500){
+//        toggle_count = true;
+//        break;
+//      }
+//    }
   }
-   if(inp > 500){
+   if(inp > 400){//380
     toggle_count = true;
     
    }

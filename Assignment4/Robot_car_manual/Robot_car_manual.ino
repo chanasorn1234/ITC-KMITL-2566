@@ -14,12 +14,14 @@ bool turn_thirty = false;
 bool traffic = true;
 int turn;
 int count_turn = 0;
-//int level_ss0 = 200;
+int count = 0;
+bool toggle_count = true;
+//int level_ss0 = 200;//หอ
 //int level_ss1 = 19;
 //int level_ss2 = 200;
 //int level_ss3 = 250;
 //int level_ss4 = 600;
-int level_ss0 = 200;
+int level_ss0 = 220;//ecc 811 สอบ
 int level_ss1 = 18;
 int level_ss2 = 250;
 int level_ss3 = 400;
@@ -256,7 +258,57 @@ else if((ss0==1)&&(ss1==1)&&(ss2==1)&&(ss3==1)&&(ss4==1)){   //1 1 1 1 1 -5 ห�
 }
 }
   if(robot_move == false && traffic == true){
-    turn = 2;//random(1,3);
+    int start_time = millis()/1000;
+    while((millis()/1000) - start_time < 4){
+    int inp = analogRead(A5);
+//    Serial.print(inp);
+//    Serial.print(" ");
+//    Serial.println(count);
+    
+    if(inp < 350 && toggle_count == true){
+//      int start_time2 = millis()/1000;
+      count += 1;
+      toggle_count = false;
+//      while((millis()/1000) - start_time2 < 3){
+//        inp = analogRead(A5);
+//        if(inp > 500){
+//          toggle_count = true;
+//          break;
+//        }
+//      }
+    }
+     if(count == 2){
+      break;
+     }
+      if(inp > 380){
+          toggle_count = true;
+      }
+    }
+    if(count == 0){
+      count = 1;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    turn = count;//random(1,3);
     if(turn == 1){
         digitalWrite(in1, LOW);
         digitalWrite(in2, HIGH);
@@ -278,8 +330,42 @@ else if((ss0==1)&&(ss1==1)&&(ss2==1)&&(ss3==1)&&(ss4==1)){   //1 1 1 1 1 -5 ห�
     robot_move = true;
     traffic = false;
     count_turn += 1;
+    
+    count = 0;
+    toggle_count = true;
   }
   else if(count_turn == 1 && traffic == false && robot_move == false){
+
+        int start_time = millis()/1000;
+    while((millis()/1000) - start_time < 4){
+    int inp = analogRead(A5);
+//    Serial.print(inp);
+//    Serial.print(" ");
+//    Serial.println(count);
+    
+    if(inp < 350 && toggle_count == true){
+//      int start_time2 = millis()/1000;
+      count += 1;
+      toggle_count = false;
+//      while((millis()/1000) - start_time2 < 3){
+//        inp = analogRead(A5);
+//        if(inp > 500){
+//          toggle_count = true;
+//          break;
+//        }
+//      }
+    }
+     if(count == 2){
+      break;
+     }
+      if(inp > 380){
+          toggle_count = true;
+      }
+    }
+    if(count == 0){
+      count = 1;
+    }
+    turn = count;
     if(turn == 1){
         digitalWrite(in1, LOW);
         digitalWrite(in2, HIGH);
@@ -287,7 +373,7 @@ else if((ss0==1)&&(ss1==1)&&(ss2==1)&&(ss3==1)&&(ss4==1)){   //1 1 1 1 1 -5 ห�
         digitalWrite(in4, LOW);
         analogWrite(enA,150); //Left Motor Speed 100 180
         analogWrite(enB,180); //Right Motor Speed
-        delay(520);
+        delay(370);
     }
     else{
         digitalWrite(in1, HIGH);

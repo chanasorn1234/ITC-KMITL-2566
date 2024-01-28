@@ -13,12 +13,11 @@ void loop()
   int x=0;
 
   ////GO
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
   pinMode(10, INPUT);
   digitalWrite(8, HIGH);
   digitalWrite(9,LOW);
-//  digitalWrite(10,LOW);
-//  x=0;
-//  Serial.println(x);
   delay(500);
   digitalWrite(8, LOW);
   digitalWrite(9,LOW);
@@ -27,15 +26,22 @@ void loop()
   digitalWrite(8, LOW);
   digitalWrite(9,HIGH);
   digitalWrite(10,LOW);
-//  x=1;
-//  Serial.println(x);
   delay(500);
   digitalWrite(8, LOW);
   digitalWrite(9,LOW);
   digitalWrite(10,LOW);
   delay(500);
+
   pinMode(8, INPUT);
   pinMode(10, OUTPUT);
+  digitalWrite(8, LOW);
+  digitalWrite(9,HIGH);
+  digitalWrite(10,LOW);
+  delay(500);
+  digitalWrite(8, LOW);
+  digitalWrite(9,LOW);
+  digitalWrite(10,LOW);
+  delay(500);
   digitalWrite(8, LOW);
   digitalWrite(9,LOW);
   digitalWrite(10,HIGH);
@@ -45,51 +51,48 @@ void loop()
   digitalWrite(10,LOW);
   delay(500);
   
-  digitalWrite(9,HIGH);
-  digitalWrite(10,LOW);
-  delay(500);
-  digitalWrite(9,LOW);
-  digitalWrite(10,LOW);
-  delay(500);
   pinMode(8, OUTPUT);
   pinMode(9, INPUT);
-  digitalWrite(8, HIGH);
-//  digitalWrite(9,HIGH);
+  digitalWrite(8,HIGH);
   digitalWrite(10,LOW);
   delay(500);
   digitalWrite(8, LOW);
-//  digitalWrite(9,LOW);
+  digitalWrite(9,LOW);
   digitalWrite(10,LOW);
   delay(500);
-  digitalWrite(8, LOW);
+  digitalWrite(8,LOW);
   digitalWrite(10,HIGH);
   delay(500);
   digitalWrite(8, LOW);
+  digitalWrite(9,LOW);
   digitalWrite(10,LOW);
   delay(500);
-  
-  //  ////BACK
-  
+
+  //BACK
+//  
   digitalWrite(8, HIGH);
-//  digitalWrite(9,HIGH);
+  digitalWrite(9,LOW);
   digitalWrite(10,LOW);
   delay(500);
   digitalWrite(8, LOW);
-//  digitalWrite(9,LOW);
+  digitalWrite(9,LOW);
   digitalWrite(10,LOW);
   delay(500);
+  
   pinMode(9, OUTPUT);
   pinMode(8, INPUT);
+  pinMode(10, OUTPUT);
+  
+
+  digitalWrite(9,LOW);
+  digitalWrite(10,HIGH);
+  delay(500);
+  digitalWrite(9,LOW);
+  digitalWrite(10,LOW);
+  delay(500);
 
   digitalWrite(9,HIGH);
   digitalWrite(10,LOW);
-  delay(500);
-  digitalWrite(9,LOW);
-  digitalWrite(10,LOW);
-  delay(500);
-
-  digitalWrite(9,LOW);
-  digitalWrite(10,HIGH);
   delay(500);
   
   digitalWrite(9,LOW);
@@ -104,5 +107,5 @@ void loop()
   digitalWrite(8, LOW);
   digitalWrite(9,LOW);
   delay(500);
-  pinMode(10, OUTPUT);
+
 }

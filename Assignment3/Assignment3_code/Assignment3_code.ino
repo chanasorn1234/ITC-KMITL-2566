@@ -23,11 +23,12 @@ int input;
 int input0;
 int input1;
 int input2;
+bool toggle_all_intput = true;
 
 struct State{
   unsigned long ST_Out; 
   unsigned long Time; 
-  unsigned long NextST[8];
+  unsigned long NextST[9];
 };
 
 typedef const struct State SType;
@@ -38,7 +39,7 @@ SType fs[6] = {
   {B10100001, 10000, {goE, goE, waitE, waitE, waitE, waitE, waitE, waitE}},
   {B10100010, 5000, {goN, goN, goN, goN, goPeople, goPeople, goPeople, goPeople}},
   {B01100100, 5000, {goPeople, waitPeople, waitPeople, waitPeople, goPeople, waitPeople, waitPeople, waitPeople}}, 
-  {B01100100, 3000, {goN, goE, goN, goE, goN, goE, goN, goE}}
+  {B01100100, 3000, {goN, goE, goN, goE, goN, goE, goN, goN,goE}}
     
 };
   unsigned long st=0;
@@ -122,6 +123,15 @@ void loop() {
   Serial.print(" ");
   Serial.println(input1);
   input = input0*2 + input1 + input2*4;
+  if(toggle_all_intput == true && st == 5 && input == 7){
+    input = 7;
+    toggle_all_intput = false;
+  }
+  else if(toggle_all_intput == false && st == 5 && input == 7){
+    input = 8;
+    toggle_all_intput = true;
+  }
+ 
   st = fs[st].NextST[input];
 //  Serial.println(input);
 
